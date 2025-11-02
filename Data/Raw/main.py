@@ -28,7 +28,7 @@ try:
 
     print("✅ Archivo cargado correctamente\n")
     print("Primeras filas:\n", df.head(), "\n")
-    print("Resumen estadístico:\n", df.describe(include='all', datetime_is_numeric=True), "\n")
+    print("Resumen estadístico:\n", df.describe(include='all'), "\n")
 
     # Limpieza de datos 
     if 'fecha' in df.columns:
