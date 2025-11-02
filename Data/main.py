@@ -1,30 +1,51 @@
-import os
 import pandas as pd
 
-# Ruta al archivo de ventas CSV
 ruta = r"C:\Users\roger\Desktop\Python\Leer\Data\ventas.csv"
 
 try:
+    # Cargar el archivo CSV 
     df = pd.read_csv(ruta)
     print("✅ Archivo cargado correctamente\n")
+
     print("Primeras filas:\n", df.head(), "\n")
     print("Resumen estadístico:\n", df.describe(), "\n")
 
-    # Limpieza y preparación básica 
+    # Limpieza de datos ---
+    # Convertir la columna 'fecha' a tipo datetime
     df['fecha'] = pd.to_datetime(df['fecha'], errors='coerce')
-    df = df.dropna(subset=['fecha'])  # elimina filas sin fecha válida
+
+    # Eliminar filas con fecha inválida
+    df = df.dropna(subset=['fecha'])
+
+    # Eliminar duplicados si los hay
+    df = df.drop_duplicates()
+
+    # Rellenar valores faltantes numéricos con la media
+    for col in df.select_dtypes(include=['float64', 'int64']):
+        df[col] = df[col].fillna(df[col].mean())
+
+    # Rellenar valores faltantes de texto con "Desconocido"
+    for col in df.select_dtypes(include=['object']):
+        df[col] = df[col].fillna('Desconocido')
+
+    # Normalizar texto (ejemplo: nombres de productos)
+    if 'producto' in df.columns:
+        df['producto'] = df['producto'].str.strip().str.lower()
+
+    # Crear nuevas columnas temporales
     df['mes'] = df['fecha'].dt.month
     df['dia_semana'] = df['fecha'].dt.day_name()
 
-    print("\nDatos después de limpieza y preparación:\n")
+    print("\n✅ Datos después de limpieza y preparación:\n")
     print(df.head())
 
-    print("Promedio de unidades por producto:")
-    print(df.groupby("producto")["unidades"].mean())
+    if 'producto' in df.columns and 'unidades' in df.columns:
+        print("\n📊 Promedio de unidades vendidas por producto:\n")
+        print(df.groupby("producto")["unidades"].mean())
 
 except FileNotFoundError:
-    print(f" No se encontró el archivo: {ruta}")
+    print(f"❌ No se encontró el archivo: {ruta}")
 except pd.errors.EmptyDataError:
-    print(" El archivo está vacío o corrupto.")
+    print("⚠️ El archivo está vacío o corrupto.")
 except Exception as e:
-    print(f" Ocurrió un error inesperado: {e}")
+    print(f"⚠️ Ocurrió un error inesperado: {e}")
