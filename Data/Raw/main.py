@@ -1,6 +1,7 @@
 import pandas as pd
+import os
 
-ruta = r"C:\Users\roger\Desktop\Python\Leer\Data\ventas.csv"
+ruta = r"C:\Users\roger\Desktop\Python\Leer\Data\Raw\ventas.csv"
 
 try:
     # Cargar el archivo CSV 
@@ -42,6 +43,15 @@ try:
     if 'producto' in df.columns and 'unidades' in df.columns:
         print("\n📊 Promedio de unidades vendidas por producto:\n")
         print(df.groupby("producto")["unidades"].mean())
+
+
+    # Guardar datos limpios
+    ruta_salida_dir = r"C:\Users\roger\Desktop\Python\Leer\Data\processed"
+    os.makedirs(ruta_salida_dir, exist_ok=True)  # crea la carpeta si no existe
+
+    ruta_salida = os.path.join(ruta_salida_dir, "ventas_limpias.csv")
+    df.to_csv(ruta_salida, index=False)
+    print(f"\n💾 Datos limpios guardados en: {ruta_salida}")    
 
 except FileNotFoundError:
     print(f"❌ No se encontró el archivo: {ruta}")
