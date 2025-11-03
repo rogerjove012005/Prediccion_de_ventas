@@ -1,0 +1,37 @@
+# ---- Archivos de Python compilados ----
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ---- Entornos virtuales ----
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ---- Archivos temporales de VSCode o PyCharm ----
+.vscode/
+.idea/
+
+# ---- Archivos de configuración del sistema ----
+.DS_Store
+Thumbs.db
+
+# ---- Archivos de logs ----
+*.log
+
+# ---- Datos generados o procesados ----
+Data/processed/
+Data/temp/
+Data/output/
+
+# ---- Archivos de notebooks temporales ----
+.ipynb_checkpoints/
+
+# ---- Configuración específica del usuario ----
+*.swp
+*.swo
+*~
