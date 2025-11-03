@@ -1,74 +1,90 @@
 import pandas as pd
 import numpy as np
+# ...existing code...
 
 def crear_features(df):
     """
-    Crea nuevas variables (features) derivadas de las columnas existentes.
+    Crea nuevas variables optimizadas y más robustas.
     """
+    # validar df
+    if df is None or len(df) == 0:
+        return df
 
-    # --- Variables temporales (si hay fecha) ---
-    if 'fecha' in df.columns:
-        df['anio'] = df['fecha'].dt.year
-        df['mes'] = df['fecha'].dt.month
-        df['dia'] = df['fecha'].dt.day
-        df['dia_semana'] = df['fecha'].dt.day_name()
+    df = df.copy()
 
-    # --- Variable de importe total ---
-    if 'precio' in df.columns and 'unidades' in df.columns:
-        df['importe_total'] = df['precio'] * df['unidades']
+    # columnas disponibles
+    has_fecha = 'fecha' in df.columns
+    has_precio = 'precio' in df.columns
+    has_unidades = 'unidades' in df.columns
+    has_producto = 'producto' in df.columns
+    has_cliente = 'cliente_id' in df.columns
 
-    # --- Clasificación simple por tipo de producto ---
-    if 'producto' in df.columns:
-        df['categoria'] = df['producto'].apply(
-            lambda x: 'electrónica' if 'tv' in x.lower() or 'smart' in x.lower()
-            else 'hogar' if 'silla' in x.lower() or 'mesa' in x.lower()
-            else 'otros'
-        )
+    # normalizar fecha
+    if has_fecha:
+        df.loc[:, 'fecha'] = pd.to_datetime(df['fecha'], errors='coerce')
+        df.loc[:, 'anio'] = df['fecha'].dt.year
+        df.loc[:, 'mes'] = df['fecha'].dt.month
+        df.loc[:, 'dia'] = df['fecha'].dt.day
+        df.loc[:, 'dia_semana'] = df['fecha'].dt.day_name()
 
-    # --- Nuevos features añadidos ---
-    # precio por unidad y log de importe
-    if 'precio' in df.columns and 'unidades' in df.columns:
-        df['precio_unitario'] = np.where(df['unidades'] > 0, df['precio'] / df['unidades'], np.nan)
-        df['log_importe_total'] = np.log1p(df['importe_total'].fillna(0))
+    # importe_total
+    if has_precio and has_unidades:
+        df.loc[:, 'importe_total'] = df['precio'] * df['unidades']
+
+    # categoria producto (vectorizado)
+    if has_producto:
+        prod = df['producto'].fillna('').astype(str).str.lower()
+        cond_elec = prod.str.contains(r'\b(tv|smart|phone|laptop|tablet)\b', regex=True)
+        cond_hogar = prod.str.contains(r'\b(silla|mesa|sofa|cama)\b', regex=True)
+        df.loc[:, 'categoria'] = np.select([cond_elec, cond_hogar], ['electrónica', 'hogar'], default='otros')
+
+    # precio_unitario y log importe
+    if has_precio and has_unidades:
+        df.loc[:, 'precio_unitario'] = np.where(df['unidades'] > 0, df['precio'] / df['unidades'], np.nan)
+        df.loc[:, 'log_importe_total'] = np.log1p(df['importe_total'].fillna(0))
 
     # features temporales adicionales
-    if 'fecha' in df.columns:
-        df['is_weekend'] = df['fecha'].dt.weekday >= 5
-        # encoding cíclico del mes
-        df['mes_sin'] = np.sin(2 * np.pi * df['mes'] / 12)
-        df['mes_cos'] = np.cos(2 * np.pi * df['mes'] / 12)
-        # estación simple (ajustar según hemisferio)
-        df['estacion'] = df['mes'].map({
-            12: 'verano', 1: 'verano', 2: 'verano',
-            3: 'otoño', 4: 'otoño', 5: 'otoño',
-            6: 'invierno', 7: 'invierno', 8: 'invierno',
-            9: 'primavera', 10: 'primavera', 11: 'primavera'
-        })
+    if has_fecha:
+        df.loc[:, 'es_fin_de_semana'] = df['fecha'].dt.weekday >= 5
+        # codificación cíclica del mes (si mes existe)
+        if 'mes' in df.columns and df['mes'].notna().any():
+            df.loc[:, 'mes_sin'] = np.sin(2 * np.pi * df['mes'] / 12)
+            df.loc[:, 'mes_cos'] = np.cos(2 * np.pi * df['mes'] / 12)
+            estaciones = {12: 'verano', 1: 'verano', 2: 'verano',
+                          3: 'otoño', 4: 'otoño', 5: 'otoño',
+                          6: 'invierno', 7: 'invierno', 8: 'invierno',
+                          9: 'primavera', 10: 'primavera', 11: 'primavera'}
+            df.loc[:, 'estacion'] = df['mes'].map(estaciones)
 
-    # features de texto del producto
-    if 'producto' in df.columns:
-        df['producto_len'] = df['producto'].str.len()
-        df['producto_has_num'] = df['producto'].str.contains(r'\d', regex=True)
+    # features de texto del producto (vectorizados)
+    if has_producto:
+        prod = df['producto'].fillna('').astype(str)
+        df.loc[:, 'producto_len'] = prod.str.len()
+        df.loc[:, 'producto_has_num'] = prod.str.contains(r'\d', regex=True)
         brands = ['sony', 'samsung', 'lg', 'panasonic']
-        df['producto_brand'] = df['producto'].apply(lambda x: next((b for b in brands if b in x.lower()), 'other'))
+        brand_pattern = r'(' + '|'.join(brands) + r')'
+        df.loc[:, 'producto_brand'] = prod.str.lower().str.extract(brand_pattern, expand=False).fillna('other')
 
-    # agregados por categoria
-    if 'categoria' in df.columns and 'precio' in df.columns:
-        df['precio_medio_categoria'] = df.groupby('categoria')['precio'].transform('mean')
+    # precio medio por categoria (solo si existen)
+    if 'categoria' in df.columns and has_precio:
+        df.loc[:, 'precio_medio_categoria'] = df.groupby('categoria')['precio'].transform('mean')
 
-    # flags de nulos para columnas clave
+    # flags de nulos
     for col in ['precio', 'unidades', 'producto', 'fecha']:
         if col in df.columns:
-            df[f'{col}_missing'] = df[col].isna()
+            df.loc[:, f'{col}_missing'] = df[col].isna()
 
-    # RFM simple por cliente (si existe cliente_id)
-    if 'cliente_id' in df.columns and 'fecha' in df.columns:
+    # RFM simple usando map en lugar de merge
+    if has_cliente and has_fecha:
         ref_date = df['fecha'].max() + pd.Timedelta(days=1)
-        rfm = df.groupby('cliente_id').agg(
-            recency=('fecha', lambda x: (ref_date - x.max()).days),
+        grouped = df.groupby('cliente_id').agg(
+            recency_days=('fecha', lambda x: (ref_date - x.max()).days),
             frequency=('fecha', 'count'),
             monetary=('importe_total', 'sum')
-        ).reset_index().rename(columns={'monetary': 'monetario'})
-        df = df.merge(rfm, on='cliente_id', how='left')
+        )
+        # mapear al df para evitar merge completo
+        df.loc[:, 'recency'] = df['cliente_id'].map(grouped['recency_days'])
+        df.loc[:, 'frequency'] = df['cliente_id'].map(grouped['frequency'])
+        df.loc[:, 'monetary'] = df['cliente_id'].map(grouped['monetary'])
 
     return df
