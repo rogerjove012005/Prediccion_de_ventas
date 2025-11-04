@@ -1,0 +1,6 @@
+[15:34:04] INFO: ==================================================
+[15:34:04] INFO: Sistema de logging inicializado
+[15:34:04] INFO: Archivo de log: c:\Users\roger\Desktop\Python\Leer\Logs\log_20251104_153404.txt
+[15:34:04] INFO: === Fuente de datos ===
+[15:34:04] INFO: 1️⃣  Archivo local
+[15:34:04] INFO: 2️⃣  URL remota

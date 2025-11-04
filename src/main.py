@@ -5,10 +5,12 @@ from datetime import datetime
 from features import crear_features  # importar el módulo de features
 
 # --- Configuración de rutas ---
-ruta_local = r"C:\Users\roger\Desktop\Python\Leer\Data\Raw\ventas.csv"
+# Obtener el directorio base del proyecto (2 niveles arriba desde src/)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ruta_local = os.path.join(BASE_DIR, "Data", "Raw", "ventas.csv")
 url = "https://people.sc.fsu.edu/~jburkardt/data/csv/airtravel.csv"
-ruta_salida_dir = r"C:\Users\roger\Desktop\Python\Leer\Data\processed"
-ruta_logs_dir = r"C:\Users\roger\Desktop\Python\Leer\Logs"
+ruta_salida_dir = os.path.join(BASE_DIR, "Data", "processed")
+ruta_logs_dir = os.path.join(BASE_DIR, "Logs")
 
 
 def configurar_logging():
