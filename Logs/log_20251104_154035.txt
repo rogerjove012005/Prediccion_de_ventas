@@ -1,0 +1,55 @@
+[15:40:35] INFO: ==================================================
+[15:40:35] INFO: Sistema de logging inicializado
+[15:40:35] INFO: Archivo de log: c:\Users\roger\Desktop\Python\Leer\Logs\log_20251104_154035.txt
+[15:40:35] INFO: === Fuente de datos ===
+[15:40:35] INFO: 1️⃣  Archivo local
+[15:40:35] INFO: 2️⃣  URL remota
+[15:40:37] INFO: 📂 Cargando datos desde archivo local...
+[15:40:37] INFO: ✅ Archivo cargado correctamente
+[15:40:37] INFO: Dimensiones iniciales: (20, 6)
+[15:40:37] INFO: Columnas encontradas: ['fecha', 'producto', 'tienda', 'unidades', 'precio', 'promocion']
+[15:40:37] INFO: Primeras filas:
+        fecha producto  tienda  unidades  precio  promocion
+0  2024-01-01        A  Centro        12    9.99          0
+1  2024-01-02        A  Centro        15    9.99          1
+2  2024-01-03        A  Centro         9    9.99          0
+3  2024-01-04        A  Centro        18    9.49          1
+4  2024-01-05        A  Centro        10    9.99          0
+[15:40:37] INFO: Resumen estadístico:
+             fecha producto  tienda   unidades     precio  promocion
+count           20       20      20  20.000000  20.000000  20.000000
+unique           5        4       3        NaN        NaN        NaN
+top     2024-01-01        A  Centro        NaN        NaN        NaN
+freq             4        5      10        NaN        NaN        NaN
+mean           NaN      NaN     NaN  16.050000  10.390000   0.400000
+std            NaN      NaN     NaN   7.577494   5.764227   0.502625
+min            NaN      NaN     NaN   7.000000   4.490000   0.000000
+25%            NaN      NaN     NaN  10.000000   6.490000   0.000000
+50%            NaN      NaN     NaN  14.500000   8.490000   0.000000
+75%            NaN      NaN     NaN  20.250000  12.240000   1.000000
+max            NaN      NaN     NaN  35.000000  19.990000   1.000000
+[15:40:37] INFO: Iniciando limpieza de datos...
+[15:40:37] INFO: ✅ Datos limpios
+[15:40:37] INFO: Dimensiones finales: (20, 6)
+[15:40:37] INFO: Primeras filas:
+       fecha producto  tienda  unidades  precio  promocion
+0 2024-01-01        A  Centro        12    9.99          0
+1 2024-01-02        A  Centro        15    9.99          1
+2 2024-01-03        A  Centro         9    9.99          0
+3 2024-01-04        A  Centro        18    9.49          1
+4 2024-01-05        A  Centro        10    9.99          0
+[15:40:37] INFO: Creando nuevas variables (features)...
+[15:40:37] INFO: ✨ Nuevas variables creadas con éxito. Columnas totales: 26
+[15:40:37] INFO: Columnas finales: ['fecha', 'producto', 'tienda', 'unidades', 'precio', 'promocion', 'anio', 'mes', 'dia', 'dia_semana', 'importe_total', 'categoria', 'precio_unitario', 'log_importe_total', 'es_fin_de_semana', 'mes_sin', 'mes_cos', 'estacion', 'producto_len', 'producto_has_num', 'producto_brand', 'precio_medio_categoria', 'precio_missing', 'unidades_missing', 'producto_missing', 'fecha_missing']
+[15:40:37] INFO: Primeras filas:
+       fecha producto  tienda  unidades  precio  promocion  ...  producto_brand  precio_medio_categoria  precio_missing unidades_missing  producto_missing fecha_missing
+0 2024-01-01        A  Centro        12    9.99          0  ...           other                   10.39           False            False             False         False
+1 2024-01-02        A  Centro        15    9.99          1  ...           other                   10.39           False            False             False         False
+2 2024-01-03        A  Centro         9    9.99          0  ...           other                   10.39           False            False             False         False
+3 2024-01-04        A  Centro        18    9.49          1  ...           other                   10.39           False            False             False         False
+4 2024-01-05        A  Centro        10    9.99          0  ...           other                   10.39           False            False             False         False
+
+[5 rows x 26 columns]
+[15:40:37] INFO: 💾 Datos procesados guardados en: c:\Users\roger\Desktop\Python\Leer\Data\processed\ventas_limpias_20251104_154037.csv
+[15:40:37] INFO: ==================================================
+[15:40:37] INFO: Proceso completado exitosamente

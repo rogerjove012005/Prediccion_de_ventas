@@ -1,0 +1,23 @@
+[15:40:01] INFO: ==================================================
+[15:40:01] INFO: Sistema de logging inicializado
+[15:40:01] INFO: Archivo de log: c:\Users\roger\Desktop\Python\Leer\Logs\log_20251104_154001.txt
+[15:40:01] INFO: === Fuente de datos ===
+[15:40:01] INFO: 1️⃣  Archivo local
+[15:40:01] INFO: 2️⃣  URL remota
+[15:40:03] INFO: 📂 Cargando datos desde archivo local...
+[15:40:03] INFO: ✅ Archivo cargado correctamente
+[15:40:03] INFO: Dimensiones iniciales: (20, 6)
+[15:40:03] INFO: Columnas encontradas: ['fecha', 'producto', 'tienda', 'unidades', 'precio', 'promocion']
+[15:40:04] INFO: Primeras filas:
+        fecha producto  tienda  unidades  precio  promocion
+0  2024-01-01        A  Centro        12    9.99          0
+1  2024-01-02        A  Centro        15    9.99          1
+2  2024-01-03        A  Centro         9    9.99          0
+3  2024-01-04        A  Centro        18    9.49          1
+4  2024-01-05        A  Centro        10    9.99          0
+[15:40:04] ERROR: ⚠️ Ocurrió un error inesperado: NDFrame.describe() got an unexpected keyword argument 'datetime_is_numeric'
+Traceback (most recent call last):
+  File "c:\Users\roger\Desktop\Python\Leer\src\main.py", line 76, in main
+    logger.info(f"Resumen estadístico:\n{df.describe(include='all', datetime_is_numeric=True)}")
+                                         ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: NDFrame.describe() got an unexpected keyword argument 'datetime_is_numeric'

@@ -72,6 +72,15 @@ def main():
         logger.info("✅ Archivo cargado correctamente")
         logger.info(f"Dimensiones iniciales: {df.shape}")
         logger.info(f"Columnas encontradas: {list(df.columns)}")
+        
+        # --- Validación de columnas requeridas ---
+        required_columns = ['fecha']
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        if missing_columns:
+            raise ValueError(f"❌ Columnas requeridas faltantes: {missing_columns}. "
+                           f"El archivo debe contener al menos: {required_columns}")
+        logger.info("✅ Validación de columnas: OK")
+        
         logger.info(f"Primeras filas:\n{df.head()}")
         logger.info(f"Resumen estadístico:\n{df.describe(include='all')}")
 
