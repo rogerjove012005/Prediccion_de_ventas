@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+from datetime import datetime
 from features import crear_features  # importar el módulo de features
 
 # --- Configuración de rutas ---
@@ -52,7 +53,9 @@ try:
 
     # --- Guardar datos procesados ---
     os.makedirs(ruta_salida_dir, exist_ok=True)
-    ruta_salida = os.path.join(ruta_salida_dir, "ventas_limpias.csv")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    nombre_archivo = f"ventas_limpias_{timestamp}.csv"
+    ruta_salida = os.path.join(ruta_salida_dir, nombre_archivo)
     df.to_csv(ruta_salida, index=False)
     print(f"\n💾 Datos procesados guardados en: {ruta_salida}")
 
