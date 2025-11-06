@@ -1,10 +1,20 @@
 import pandas as pd
 import numpy as np
-# ...existing code...
 
-def crear_features(df):
+def crear_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Crea nuevas variables optimizadas y más robustas.
+    Crea nuevas variables (features) optimizadas y más robustas.
+    
+    Genera features temporales, de producto, de precio, RFM y flags de valores
+    faltantes basándose en las columnas disponibles en el DataFrame.
+    
+    Args:
+        df: DataFrame con datos de ventas. Debe contener al menos la columna 'fecha'.
+            Columnas opcionales: 'precio', 'unidades', 'producto', 'cliente_id'.
+    
+    Returns:
+        DataFrame con las features adicionales creadas. El DataFrame original
+        no se modifica (se retorna una copia).
     """
     # validar df
     if df is None or len(df) == 0:

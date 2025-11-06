@@ -12,9 +12,12 @@ ruta_salida_dir = os.path.join(BASE_DIR, "Data", "processed")
 ruta_logs_dir = os.path.join(BASE_DIR, "Logs")
 
 
-def configurar_logging():
+def configurar_logging() -> str:
     """
     Configura el sistema de logging para escribir en archivo y consola.
+    
+    Returns:
+        str: Ruta del archivo de log creado.
     """
     # Crear directorio de logs si no existe
     os.makedirs(ruta_logs_dir, exist_ok=True)
@@ -41,8 +44,13 @@ def configurar_logging():
     return archivo_log
 
 
-def main():
-    """Función principal del procesamiento de datos."""
+def main() -> None:
+    """
+    Función principal del procesamiento de datos.
+    
+    Carga datos desde archivo local o URL remota, los limpia,
+    crea features y guarda el resultado procesado.
+    """
     # Configurar logging al inicio
     archivo_log = configurar_logging()
     logger = logging.getLogger(__name__)

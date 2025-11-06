@@ -8,3 +8,4 @@ __version__ = "1.0.0"
 
 # Mensaje opcional al importar el paquete
 print("📦 Paquete 'src' cargado correctamente.")
+
