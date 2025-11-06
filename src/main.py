@@ -3,6 +3,14 @@ import os
 import logging
 from datetime import datetime
 from features import crear_features  # importar el módulo de features
+from validation import validar_esquema, validar_calidad_datos, validar_despues_limpieza
+from exceptions import (
+    DataProcessingError,
+    SchemaValidationError,
+    DataQualityError,
+    FileLoadError,
+    EmptyDataError
+)
 
 # --- Configuración de rutas ---
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -73,7 +81,11 @@ def main() -> None:
                 raise FileNotFoundError(f"No se encontró el archivo local en: {ruta_local}")
         elif opcion == "2":
             logger.info("🌐 Cargando datos desde URL remota...")
-            df = pd.read_csv(url)
+            try:
+                df = pd.read_csv(url)
+            except Exception as e:
+                logger.error(f"❌ Error al cargar desde URL: {e}")
+                raise FileLoadError(f"No se pudo cargar datos desde la URL: {e}") from e
         else:
             raise ValueError("Opción no válida. Debes elegir 1 o 2.")
 
@@ -83,11 +95,28 @@ def main() -> None:
         
         # --- Validación de columnas requeridas ---
         required_columns = ['fecha']
-        missing_columns = [col for col in required_columns if col not in df.columns]
-        if missing_columns:
-            raise ValueError(f"❌ Columnas requeridas faltantes: {missing_columns}. "
-                           f"El archivo debe contener al menos: {required_columns}")
-        logger.info("✅ Validación de columnas: OK")
+        try:
+            validar_esquema(df, required_columns)
+            logger.info("✅ Validación de columnas: OK")
+        except SchemaValidationError as e:
+            logger.error(f"❌ Error de validación de esquema: {e}")
+            if e.missing_columns:
+                logger.error(f"   Columnas faltantes: {e.missing_columns}")
+            raise
+        except EmptyDataError as e:
+            logger.error(f"❌ {e}")
+            raise
+        
+        # --- Validación de calidad de datos inicial ---
+        logger.info("Validando calidad de datos inicial...")
+        try:
+            reporte_calidad = validar_calidad_datos(df, logger)
+            logger.info(f"📊 Reporte de calidad: {reporte_calidad['total_filas']} filas, "
+                       f"{reporte_calidad['total_columnas']} columnas")
+        except DataQualityError as e:
+            logger.warning(f"⚠️ Problemas de calidad detectados: {e}")
+            if e.quality_issues:
+                logger.warning(f"   Detalles: {e.quality_issues}")
         
         logger.info(f"Primeras filas:\n{df.head()}")
         logger.info(f"Resumen estadístico:\n{df.describe(include='all')}")
@@ -121,6 +150,17 @@ def main() -> None:
 
         logger.info("✅ Datos limpios")
         logger.info(f"Dimensiones finales: {df.shape}")
+        
+        # --- Validación post-limpieza ---
+        try:
+            validar_despues_limpieza(df, logger)
+        except EmptyDataError as e:
+            logger.error(f"❌ {e}")
+            raise
+        except DataQualityError as e:
+            logger.error(f"❌ Error de calidad después de limpieza: {e}")
+            raise
+        
         logger.info(f"Primeras filas:\n{df.head()}")
 
         # --- Crear nuevas variables ---
@@ -142,13 +182,28 @@ def main() -> None:
 
     except FileNotFoundError as e:
         logger.error(f"❌ Error de archivo no encontrado: {e}")
-    except pd.errors.EmptyDataError:
+        raise FileLoadError(f"No se pudo cargar el archivo: {e}") from e
+    except pd.errors.EmptyDataError as e:
         logger.error("⚠️ El archivo está vacío o corrupto.")
+        raise EmptyDataError("El archivo cargado está vacío o corrupto.") from e
+    except SchemaValidationError as e:
+        logger.error(f"❌ Error de validación de esquema: {e}")
+        raise
+    except DataQualityError as e:
+        logger.error(f"❌ Error de calidad de datos: {e}")
+        raise
+    except EmptyDataError as e:
+        logger.error(f"❌ Error: {e}")
+        raise
     except ValueError as e:
         logger.error(f"❌ Error de valor: {e}")
+        raise DataProcessingError(f"Error en el procesamiento: {e}") from e
+    except DataProcessingError as e:
+        logger.error(f"❌ Error en el procesamiento: {e}")
+        raise
     except Exception as e:
         logger.error(f"⚠️ Ocurrió un error inesperado: {e}", exc_info=True)
-        raise
+        raise DataProcessingError(f"Error inesperado: {e}") from e
 
 
 if __name__ == "__main__":
